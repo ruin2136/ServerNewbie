@@ -1,10 +1,16 @@
-using System.Text;
+ï»¿using System.Text;
 using Newtonsoft.Json;
 
 public class DataPacket
 {
-    public string Type { get; set; }    // µ¥ÀÌÅÍ Å¸ÀÔ
-    public string Value { get; set; }   // µ¥ÀÌÅÍ °ª
+    //NetworkStream ì‚¬ìš©ì„ ìœ„í•´ ì œì‘ë¨
+    //StreamWriter, StreamReaderëŠ” string íƒ€ì…ë§Œ ì†¡ìˆ˜ì‹  ê°€ëŠ¥
+    //DataPacketì´ë€ ìë£Œí˜•ì„ ì „ì†¡í•˜ê¸° ìœ„í•´ì„  ë§ˆì°¬ê°€ì§€ë¡œ jsonìœ¼ë¡œ ë³€í™˜ í•„ìš”
+    //ê·¸ë˜ì„œ ê·¸ëƒ¥ ê³¼ì œì—ì„œë„ ì“°ì´ëŠ” NetworkStreamì„ ì‚¬ìš©
+    //ì´ì— ë§ì¶° ë°”ì´íŠ¸ ë°°ì—´ë¡œ ì§ë ¬í™”, ì—­ì§ë ¬í™”
+
+    public string Type { get; set; }    // ë°ì´í„° íƒ€ì…
+    public string Value { get; set; }   // ë°ì´í„° ê°’
 
     public DataPacket(string type, string value)
     {
@@ -12,21 +18,21 @@ public class DataPacket
         Value = value;
     }
 
-    // Á÷·ÄÈ­ ¸Ş¼­µå
+    // ì§ë ¬í™” ë©”ì„œë“œ
     public byte[] Serialize()
     {
-        // °´Ã¼¸¦ JSON ¹®ÀÚ¿­·Î º¯È¯
+        // ê°ì²´ë¥¼ JSON ë¬¸ìì—´ë¡œ ë³€í™˜
         string jsonString = JsonConvert.SerializeObject(this);
-        // JSON ¹®ÀÚ¿­À» ¹ÙÀÌÆ® ¹è¿­·Î º¯È¯
+        // JSON ë¬¸ìì—´ì„ ë°”ì´íŠ¸ ë°°ì—´ë¡œ ë³€í™˜
         return Encoding.UTF8.GetBytes(jsonString);
     }
 
-    // ¿ªÁ÷·ÄÈ­ ¸Ş¼­µå
+    // ì—­ì§ë ¬í™” ë©”ì„œë“œ
     public static DataPacket Deserialize(byte[] data)
     {
-        // ¹ÙÀÌÆ® ¹è¿­À» JSON ¹®ÀÚ¿­·Î º¯È¯
+        // ë°”ì´íŠ¸ ë°°ì—´ì„ JSON ë¬¸ìì—´ë¡œ ë³€í™˜
         string jsonString = Encoding.UTF8.GetString(data);
-        // JSON ¹®ÀÚ¿­À» DataPacket °´Ã¼·Î º¯È¯
+        // JSON ë¬¸ìì—´ì„ DataPacket ê°ì²´ë¡œ ë³€í™˜
         return JsonConvert.DeserializeObject<DataPacket>(jsonString);
     }
 }
