@@ -1,15 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class ClientPlayer : IPlayer
+﻿public class ClientPlayer : Player
 {
-    // 인터페이스의 속성 구현
-    public string name { get; set; }
-    public bool onCoolTime { get; set; }
-    public string answer { get; set; }
-
-    public ClientPlayer(string nickname)
+    public ClientPlayer(string nickname) : base(nickname)
     {
         name = nickname;
         onCoolTime = false;
@@ -17,7 +8,7 @@ public class ClientPlayer : IPlayer
     }
 
     //정답 서버에 제출
-    public void SubmitAnswer()
+    public void SubmitAnswer(string answer)
     {
 
     }
@@ -30,6 +21,12 @@ public class ClientPlayer : IPlayer
 
     //현재 점수를 서버에서 가져와 출력
     public void PrintScore()
+    {
+
+    }
+
+    //쿨타임 작동 메서드(비동기)
+    public void CoolTime()
     {
 
     }

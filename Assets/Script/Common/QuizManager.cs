@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class QuizManager : MonoBehaviour
 {
-    public List<IPlayer> players = new List<IPlayer>();     //현재 플레이어 목록
+    public List<Player> players = new List<Player>();       //현재 플레이어 목록
     public int currentRound;                                //현재 라운드
     public int totalRound;                                  //라운드 수
     public List<Quiz> everyQuiz = new List<Quiz>();         //모든 퀴즈
     public List<Quiz> usedQuiz = new List<Quiz>();          //사용된 퀴즈
     public float coolTime;                                  //정답 쿨타임 시간
-    public Queue<Quiz> recevieAnswer;                       //받은 정답 큐
+    public Queue<Player> recevieAnswer;                     //받은 정답 큐
 
     //라운드 시작
     public void StartRound()
