@@ -207,7 +207,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 766413916}
+      - m_Target: {fileID: 766413918}
         m_TargetAssemblyTypeName: Client, Assembly-CSharp
         m_MethodName: ConnectToServer
         m_Mode: 1
@@ -1083,7 +1083,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 630787562}
-  - component: {fileID: 630787561}
+  - component: {fileID: 630787563}
   m_Layer: 0
   m_Name: Server
   m_TagString: Untagged
@@ -1091,19 +1091,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &630787561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 630787560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 221834a524cd05b48998d5a0ccdde11b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PortInput: {fileID: 390332244}
 --- !u!4 &630787562
 Transform:
   m_ObjectHideFlags: 0
@@ -1119,6 +1106,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &630787563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 630787560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53a50d2529de29347a9babc5b8efc654, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PortInput: {fileID: 390332244}
 --- !u!1 &766413915
 GameObject:
   m_ObjectHideFlags: 0
@@ -1128,7 +1128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 766413917}
-  - component: {fileID: 766413916}
+  - component: {fileID: 766413918}
   m_Layer: 0
   m_Name: Client
   m_TagString: Untagged
@@ -1136,21 +1136,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &766413916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 766413915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bff09310e74970a449b0e8cfcdd1cb3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IPInput: {fileID: 1537687710}
-  PortInput: {fileID: 390332244}
-  NickInput: {fileID: 1920768590}
 --- !u!4 &766413917
 Transform:
   m_ObjectHideFlags: 0
@@ -1166,6 +1151,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &766413918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 766413915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8c69ceb83b2b349bc4d36f1659b76d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IPInput: {fileID: 1537687710}
+  PortInput: {fileID: 390332244}
+  NickInput: {fileID: 1920768590}
 --- !u!1 &844079474
 GameObject:
   m_ObjectHideFlags: 0
@@ -1261,7 +1261,7 @@ MonoBehaviour:
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 766413916}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Client, Assembly-CSharp
         m_MethodName: OnSendButton
         m_Mode: 2
@@ -1649,7 +1649,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 630787561}
+      - m_Target: {fileID: 630787563}
         m_TargetAssemblyTypeName: Server, Assembly-CSharp
         m_MethodName: OnBroadcastQuizButton
         m_Mode: 1
@@ -2929,7 +2929,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 630787561}
+      - m_Target: {fileID: 630787563}
         m_TargetAssemblyTypeName: Server, Assembly-CSharp
         m_MethodName: ServerCreate
         m_Mode: 1
@@ -3442,7 +3442,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2018275978}
   m_HandleRect: {fileID: 2018275976}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
