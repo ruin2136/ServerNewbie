@@ -17,7 +17,10 @@ public class QuizManager : MonoBehaviour
 
     public Text QuizText; // 문제 출력할 Text UI
     public Text CountdownText; // 카운트다운 Text UI
+    public Text scoreText; // 점수 Text UI
     public bool isStartQuiz; // 퀴즈 중이면 true, 아니면 false
+
+      public Dictionary<string, int> clientScores = new Dictionary<string, int>(); // 클라이언트 점수 저장용 딕셔너리
 
     private void Awake()
     {
@@ -44,6 +47,7 @@ public class QuizManager : MonoBehaviour
         isStartQuiz = false;
         QuizText.text = "";
         CountdownText.text = "";
+        scoreText.text = "";
     }
 
     // 퀴즈 데이터를 CSV에서 로드하고 파싱합니다.

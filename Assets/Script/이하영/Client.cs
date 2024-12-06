@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Net.Sockets;
 using System.Text;
 using System;
+using UnityEngine.SceneManagement;
 
 public class Client : MonoBehaviour
 {
@@ -16,6 +17,20 @@ public class Client : MonoBehaviour
     NetworkStream stream;
 
     private bool isCooldown = false; // 입력 쿨타임 상태 확인 변수
+
+    public static Client Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 다른 씬 로드 시에도 유지
+        }
+        else
+        {
+            Destroy(gameObject); // 중복된 QuizManager 삭제
+        }
+    }
 
     public void ConnectToServer()
     {
@@ -35,10 +50,15 @@ public class Client : MonoBehaviour
             DataPacket nicknamePacket = new DataPacket("nickname", clientName);
             byte[] serializedData = nicknamePacket.Serialize();
             Send(serializedData);
+
+            // 씬 이동 
+            SceneController.Instance.LoadScene("LobbyScene"); 
+
         }
         catch (Exception e)
         {
-            Chat.instance.ShowMessage($"소켓 에러: {e.Message}");
+            //Chat.instance.ShowMessage($"소켓 에러: {e.Message}");
+            Debug.LogError("소켓에러");
         }
     }
 
@@ -71,7 +91,7 @@ public class Client : MonoBehaviour
             OnIncomingData(completePacket); // 패킷 처리
         }
     }
-
+    
     void OnIncomingData(string data)
     {
         Debug.Log("서버에서 받은 데이터: " + data);
@@ -79,7 +99,8 @@ public class Client : MonoBehaviour
         DataPacket packet = DataPacket.Deserialize(Encoding.UTF8.GetBytes(data));
         Debug.Log($"받은 패킷 타입: {packet.Type}, 값: {packet.Value}");
 
-        if (packet.Type == "message")
+        // 나중에 시간나면 스위치문으로..
+        if (packet.Type == "message" && Chat.instance)
         {
             Chat.instance.ShowMessage(packet.Value);
         }
@@ -108,6 +129,29 @@ public class Client : MonoBehaviour
             {
                 Debug.LogError("퀴즈 데이터 형식이 잘못되었습니다: " + packet.Value);
             }
+        }
+        else if (packet.Type == "score") 
+        {
+            string[] scoreData = packet.Value.Split('|');
+            if (scoreData.Length == 2)
+            {
+                string nickname = scoreData[0];
+                if (int.TryParse(scoreData[1], out int score))
+                {
+                    Debug.Log($"{nickname}의 점수 업데이트: {score}");
+
+                    QuizManager.Instance.scoreText.text=$"{nickname}: {score}";
+                }
+            }
+        }
+        else if(packet.Type=="countdown")
+        {
+             if (int.TryParse(packet.Value, out int countdownTime))
+            {
+                QuizManager.Instance.CountdownText.text = countdownTime.ToString(); // 클라이언트에서 카운트다운 표시
+                //Debug.Log($"서버에서 받은 카운트다운: {countdownTime}");
+            }
+
         }
     }
 
@@ -140,11 +184,19 @@ public class Client : MonoBehaviour
         Send(serializedMessage);
 
         // 정답 체크
-        bool isCorrect = QuizManager.Instance.CheckAnswer(message);
-        if (!isCorrect && QuizManager.Instance.isStartQuiz)
+        if(QuizManager.Instance)
         {
-            StartCoroutine(InputCooldown(3f)); // 정답이 아니면 쿨타임 3초 적용
+            bool isCorrect = QuizManager.Instance.CheckAnswer(message);
+            if (!isCorrect && QuizManager.Instance.isStartQuiz)
+            {
+                StartCoroutine(InputCooldown(3f)); // 정답이 아니면 쿨타임 3초 적용
+            }
         }
+        else 
+        {
+            Debug.Log("퀴즈매니저 널");
+        }
+       
     }
     private IEnumerator InputCooldown(float cooldownTime)
     {
@@ -169,6 +221,7 @@ public class Client : MonoBehaviour
         Chat.instance.SendInput.interactable = true; // 버튼 활성화
         isCooldown = false;
     }
+
 
     void OnApplicationQuit()
     {
