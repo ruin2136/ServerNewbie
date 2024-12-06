@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System;
 
-public class Client : MonoBehaviour
+public class TCP_Client : MonoBehaviour
 {
     public InputField IPInput, PortInput, NickInput;  // NickInput을 UI InputField로 사용
     string clientName;
@@ -61,7 +61,7 @@ public class Client : MonoBehaviour
         Debug.Log("서버에서 받은 데이터: " + data);  // 데이터 출력 (디버깅)
 
         // DataPacket 역직렬화
-        DataPacket packet = DataPacket.Deserialize(Encoding.UTF8.GetBytes(data));
+        DataPacket packet = DataPacket.TCPDeserialize(Encoding.UTF8.GetBytes(data));
 
         if (packet.Type == "message")
         {
@@ -77,7 +77,7 @@ public class Client : MonoBehaviour
         {
             // DataPacket 객체로 감싸서 전송
             DataPacket packet = new DataPacket("message", data);  // 메시지를 DataPacket 객체로 감싼다
-            byte[] serializedData = packet.Serialize();  // 직렬화하여 바이트 배열로 변환
+            byte[] serializedData = packet.TCPSerialize();  // 직렬화하여 바이트 배열로 변환
             stream.Write(serializedData, 0, serializedData.Length);
             Debug.Log("서버로 전송한 데이터: " + data);  // 데이터 출력 (디버깅)
         }

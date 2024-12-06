@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QuizManager : MonoBehaviour
+public class Alpa_QuizManager : MonoBehaviour
 {
     public List<Player> players = new List<Player>();       //현재 플레이어 목록
     public int currentRound;                                //현재 라운드

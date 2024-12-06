@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System;
 
-public class Server : MonoBehaviour
+public class TCP_Server : MonoBehaviour
 {
     public InputField PortInput;
 
@@ -117,7 +117,7 @@ public class Server : MonoBehaviour
         Debug.Log("서버에서 받은 데이터: " + data);  // 서버에서 받은 데이터 출력 (디버깅)
 
         // DataPacket 역직렬화
-        DataPacket packet = DataPacket.Deserialize(Encoding.UTF8.GetBytes(data));
+        DataPacket packet = DataPacket.TCPDeserialize(Encoding.UTF8.GetBytes(data));
         
         if (packet.Type == "message")
         {
@@ -129,7 +129,7 @@ public class Server : MonoBehaviour
     void Broadcast(string data, List<ServerClient> cl)
     {
         DataPacket packet = new DataPacket("message", data);  // 메시지를 DataPacket 객체로 감싼다
-        byte[] serializedData = packet.Serialize();  // 직렬화하여 바이트 배열로 변환
+        byte[] serializedData = packet.TCPSerialize();  // 직렬화하여 바이트 배열로 변환
         
         foreach (var c in cl)
         {
@@ -144,17 +144,5 @@ public class Server : MonoBehaviour
                 Chat.instance.ShowMessage($"쓰기 에러: {e.Message} - 클라이언트 {c.clientName}");
             }
         }
-    }
-}
-
-public class ServerClient
-{
-    public TcpClient tcp;
-    public string clientName;
-
-    public ServerClient(TcpClient clientSocket)
-    {
-        clientName = "Guest";
-        tcp = clientSocket;
     }
 }
