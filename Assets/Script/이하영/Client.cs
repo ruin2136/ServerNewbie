@@ -141,7 +141,7 @@ public class Client : MonoBehaviour
 
         // 정답 체크
         bool isCorrect = QuizManager.Instance.CheckAnswer(message);
-        if (!isCorrect)
+        if (!isCorrect && QuizManager.Instance.isStartQuiz)
         {
             StartCoroutine(InputCooldown(3f)); // 정답이 아니면 쿨타임 3초 적용
         }

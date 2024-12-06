@@ -17,6 +17,7 @@ public class QuizManager : MonoBehaviour
 
     public Text QuizText; // 문제 출력할 Text UI
     public Text CountdownText; // 카운트다운 Text UI
+    public bool isStartQuiz; // 퀴즈 중이면 true, 아니면 false
 
     private void Awake()
     {
@@ -33,9 +34,17 @@ public class QuizManager : MonoBehaviour
 
     private void Start()
     {
+        Initialization();
         LoadQuizzes();
     }
 
+    // 초기화
+    public void Initialization()
+    {
+        isStartQuiz = false;
+        QuizText.text = "";
+        CountdownText.text = "";
+    }
 
     // 퀴즈 데이터를 CSV에서 로드하고 파싱합니다.
     public void LoadQuizzes()

@@ -222,11 +222,13 @@ public class Server : MonoBehaviour
         currentQuiz = nextQuiz;
         BroadcastQuiz(nextQuiz.id, nextQuiz.question.Replace(";", ","));
         Debug.Log($"출제된 퀴즈: {nextQuiz.question}");
+        QuizManager.Instance.isStartQuiz = true;
     }
 
     // 카운트다운 후 퀴즈를 브로드캐스트하는 코루틴
     private IEnumerator CountdownAndBroadcastQuiz()
     {
+        QuizManager.Instance.isStartQuiz = false;
         int countdownTime = 3; // 3초 카운트다운
         while (countdownTime > 0)
         {
