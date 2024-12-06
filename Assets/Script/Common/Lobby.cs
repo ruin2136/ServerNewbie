@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class Lobby : MonoBehaviour
+public class Lobby
 {
     public string lobbyId;          //고유 로비 아이디
-    List<GameClient> clients;       //클라이언트 목록
+    public List<ServerClient> clients=new List<ServerClient> { };       //클라이언트 목록
     int maxPlayer = 4;              //최대 정원
     
     public bool isFull = false;     //정원이 찼는지
@@ -19,16 +19,12 @@ public class Lobby : MonoBehaviour
     }
 
     // 비동기 클라이언트 추가
-    public async Task AddPlayerAsync(GameClient client)
+    public void AddPlayer(ServerClient client)
     {
-        // 예시로 비동기 작업 처리 (예: 네트워크 통신 등)
-        await Task.Delay(100);  // 비동기 작업 예시 (여기서는 지연을 추가)       
-
-
         if (!isFull)
         {
             clients.Add(client);
-            Debug.Log($"플레이어 {client}가 로비에 추가되었습니다.");
+            Debug.Log($"플레이어 {client}가 {lobbyId} 로비에 추가되었습니다.");
 
             if(clients.Count.Equals(maxPlayer))
                 isFull = true;
@@ -40,11 +36,12 @@ public class Lobby : MonoBehaviour
     }
 
     //로비에서 플레이어 제거
-    public void RemovePlayer(GameClient client)
+    public void RemovePlayer(ServerClient client)
     {
         clients.Remove(client);
         if (!clients.Count.Equals(maxPlayer))
             isFull = false;
+        Debug.Log($"플레이어 {client}가 {lobbyId} 로비에서 제거되었습니다.");
     }
 
     //모든 플레이어 준비상태 확인
@@ -58,10 +55,10 @@ public class Lobby : MonoBehaviour
 
         bool allReady = true;
 
-        foreach(GameClient player in clients)
+        foreach(ServerClient player in clients)
         {
-            if(!player.isReady)
-                allReady = player.isReady;
+            //if(!player.isReady)
+            //    allReady = player.isReady;
         }
 
         return allReady;

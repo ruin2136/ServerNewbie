@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,7 +20,7 @@ public class QuizManager : MonoBehaviour
     public Text scoreText; // 점수 Text UI
     public bool isStartQuiz; // 퀴즈 중이면 true, 아니면 false
 
-      public Dictionary<string, int> clientScores = new Dictionary<string, int>(); // 클라이언트 점수 저장용 딕셔너리
+    public Dictionary<string, int> clientScores = new Dictionary<string, int>(); // 클라이언트 점수 저장용 딕셔너리
 
     private void Awake()
     {

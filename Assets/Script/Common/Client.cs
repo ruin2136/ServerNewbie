@@ -109,6 +109,37 @@ public class Client : MonoBehaviour
             clientName = packet.Value;
             Chat.instance.ShowMessage($"닉네임: {clientName}으로 접속되었습니다.");
         }
+        else if (packet.Type == "listUpdate")
+        {
+            // ,을 기준으로 데이터를 나누기 = 플레이어 이름 목록
+            string[] names = packet.Value.Split(", ");
+
+            //todo 씬이름 기준으로?
+            //로비 업데이트
+            LobbyUpdate(names);
+            //아니면 퀴즈 업데이트
+        }
+        else if(packet.Type== "readyBtn")
+        {
+            //todo 로비 준비 버튼 활성화 비활성화
+            bool active;
+            
+            if (bool.TryParse(packet.Value, out active))
+            {
+                if (active)
+                {
+                    // 준비 버튼 활성화
+                }
+                else
+                {
+                    // 준비 버튼 비활성화
+                }
+            }
+            else
+            {
+                Debug.LogError($"Invalid bool value: {packet.Value}");
+            }
+        }
         else if (packet.Type == "quiz")
         {
             string[] quizData = packet.Value.Split('|');
@@ -228,7 +259,7 @@ public class Client : MonoBehaviour
         CloseSocket();
     }
 
-    void CloseSocket()
+    public void CloseSocket()
     {
         if (!socketReady) return;
 
@@ -243,4 +274,31 @@ public class Client : MonoBehaviour
             Chat.instance.ShowMessage($"소켓 닫기 에러: {e.Message}");
         }
     }
+
+    #region 추가된 코드(by 전영준)
+    public bool isReady=false;
+
+    public void SetReady()
+    {
+        //TODO 준비 버튼 UI 변경
+
+        isReady = !isReady;
+
+        string message = isReady.ToString();
+
+        Debug.LogFormat($"준비 상태 전송 : {message}");
+        DataPacket messagePacket = new DataPacket("ready", message);
+        byte[] serializedMessage = messagePacket.Serialize();
+        Send(serializedMessage);
+    }
+
+    private void LobbyUpdate(string[] names)
+    {
+        Debug.Log($"받은 플레이어 목록 데이터 : {names}");
+        //todo 플레이어 슬롯 UI를 names의 값에 따라 업데이트
+        //순서대로 이름을 넣어주고 활성화 상태 변경
+        //빈 슬롯 생기면 비활성화 처리
+    }
+
+    #endregion
 }
