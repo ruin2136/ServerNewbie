@@ -1,9 +1,11 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
     public static SceneController Instance { get; private set; }
+
 
     private void Awake()
     {
@@ -22,21 +24,71 @@ public class SceneController : MonoBehaviour
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
-        
     }
 
     // 씬 로드 후 초기화 작업
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"씬 로드 완료: {scene.name}");
-        if (scene.name == "LobbyScene" || scene.name=="QuizScene" ) // 로비 씬에서만 특정 초기화 진행
+        if (scene.name == "LobbyScene")
         {
+            // 로비 씬에 초기화 및 업데이트
             InitializeLobbyScene();
-            OnDisable();
+        }
+        else if(scene.name == "QuizScene")
+        {
+            // 퀴즈 씬 초기화
+            InitializeQuizScene();
         }
     }
 
     private void InitializeLobbyScene()
+    {
+        //Client에 로비 UI 매니저 할당
+        GameObject lobObject = GameObject.Find("LobbyUIManager");
+        Debug.Log(lobObject);
+        if (lobObject != null)
+        {
+            LobbyUIManager lobUI = lobObject.GetComponent<LobbyUIManager>();
+            if (lobUI != null)
+            {
+                Client.Instance.lobManager = lobUI;
+
+                //로비 UI 갱신 호출
+                lobUI.LobbyUIUpdate(Client.Instance.playerNames);
+            }
+            else
+            {
+                Debug.LogError($"{lobObject.name} 오브젝트에 LobbyUIManager 컴포넌트가 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.LogError("LobbyUIManager 오브젝트를 찾을 수 없습니다.");
+        }
+
+        //Chat 오브젝트 할당
+        GameObject chatObject = GameObject.Find("Chat");
+        Debug.Log(chatObject);
+        if (chatObject != null)
+        {
+            Chat chatComponent = chatObject.GetComponent<Chat>();
+            if (chatComponent != null)
+            {
+                Chat.instance = chatComponent;
+            }
+            else
+            {
+                Debug.LogError("Chat 오브젝트에 Chat 컴포넌트가 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Chat 오브젝트를 찾을 수 없습니다.");
+        }
+    }
+
+    private void InitializeQuizScene()
     {
         GameObject chatObject = GameObject.Find("Chat");
         Debug.Log(chatObject);

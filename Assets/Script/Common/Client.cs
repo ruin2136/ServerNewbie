@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class Client : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class Client : MonoBehaviour
     NetworkStream stream;
 
     private bool isCooldown = false; // 입력 쿨타임 상태 확인 변수
+
+    [Header("로비 UI 매니저")]
+    public LobbyUIManager lobManager;
+    public List<string> playerNames = new List<string>();
 
     public static Client Instance { get; private set; }
     private void Awake()
@@ -51,14 +56,15 @@ public class Client : MonoBehaviour
             byte[] serializedData = nicknamePacket.Serialize();
             Send(serializedData);
 
+
             // 씬 이동 
-            SceneController.Instance.LoadScene("LobbyScene"); 
+            //SceneController.Instance.LoadScene("LobbyScene"); 
 
         }
         catch (Exception e)
         {
             //Chat.instance.ShowMessage($"소켓 에러: {e.Message}");
-            Debug.LogError("소켓에러");
+            Debug.LogError($"소켓 에러: {e.Message}");
         }
     }
 
@@ -109,14 +115,25 @@ public class Client : MonoBehaviour
             clientName = packet.Value;
             Chat.instance.ShowMessage($"닉네임: {clientName}으로 접속되었습니다.");
         }
+        else if(packet.Type == "moveToLobby")
+        {
+            // ,을 기준으로 데이터를 나누기
+            playerNames = packet.Value.Split(", ").ToList();
+
+            //로비 씬으로 이동
+            SceneController.Instance.LoadScene("LobbyScene");
+        }
         else if (packet.Type == "listUpdate")
         {
-            // ,을 기준으로 데이터를 나누기 = 플레이어 이름 목록
-            string[] names = packet.Value.Split(", ");
+            // ,을 기준으로 데이터를 나누기
+            List<string> nameList = packet.Value.Split(", ").ToList();
 
-            //todo 씬이름 기준으로?
-            //로비 업데이트
-            LobbyUpdate(names);
+            // 로비/퀴즈 구분
+            if(lobManager != null)
+            {
+                //로비 업데이트
+                lobManager.LobbyUIUpdate(nameList);
+            }
             //아니면 퀴즈 업데이트
         }
         else if(packet.Type== "readyBtn")
@@ -291,14 +308,5 @@ public class Client : MonoBehaviour
         byte[] serializedMessage = messagePacket.Serialize();
         Send(serializedMessage);
     }
-
-    private void LobbyUpdate(string[] names)
-    {
-        Debug.Log($"받은 플레이어 목록 데이터 : {names}");
-        //todo 플레이어 슬롯 UI를 names의 값에 따라 업데이트
-        //순서대로 이름을 넣어주고 활성화 상태 변경
-        //빈 슬롯 생기면 비활성화 처리
-    }
-
     #endregion
 }

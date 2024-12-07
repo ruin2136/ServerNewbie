@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 public class Lobby
 {
     public string lobbyId;          //고유 로비 아이디
-    public List<ServerClient> clients=new List<ServerClient> { };       //클라이언트 목록
+    public List<ServerClient> clients=new() { };       //클라이언트 목록
     int maxPlayer = 4;              //최대 정원
     
     public bool isFull = false;     //정원이 찼는지
@@ -18,13 +18,13 @@ public class Lobby
         lobbyId = ID;
     }
 
-    // 비동기 클라이언트 추가
+    // 클라이언트 추가
     public void AddPlayer(ServerClient client)
     {
         if (!isFull)
         {
             clients.Add(client);
-            Debug.Log($"플레이어 {client}가 {lobbyId} 로비에 추가되었습니다.");
+            Debug.Log($"플레이어가 {lobbyId} 로비에 추가되었습니다.");
 
             if(clients.Count.Equals(maxPlayer))
                 isFull = true;
