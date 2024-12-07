@@ -122,16 +122,36 @@ public class Client : MonoBehaviour
         {
             playerNames = packet.Value.Split(", ").ToList();
 
-
             //로비 씬으로 이동
             SceneController.Instance.LoadScene("LobbyScene");
         }
         else if (packet.Type == "moveToQuiz")
         {
-            playerNames = packet.Value.Split(", ").ToList();
+            playerNames.Clear();
+            playerScores.Clear();
 
-            SceneController.Instance.LoadScene("QuizScene");
+            string[] playerData = packet.Value.Split(';');
 
+            foreach (string player in playerData)
+            {
+                string[] details = player.Split(',');
+
+                if (details.Length == 2)
+                {
+                    playerNames.Add(details[0]); // 이름 추가
+                    if (int.TryParse(details[1], out int score))
+                    {
+                        playerScores.Add(score); // 점수 추가
+                    }
+                    else
+                    {
+                        playerScores.Add(0); // 기본값으로 0 설정
+                    }
+                }
+            }
+
+            // 퀴즈 씬으로 이동 후, 0.5초 뒤에 점수 업데이트
+            StartCoroutine(LoadSceneAndUpdateScore());
         }
         else if (packet.Type == "listUpdate")
         {
@@ -201,15 +221,31 @@ public class Client : MonoBehaviour
         }
         else if (packet.Type == "score")
         {
-            string[] scoreData = packet.Value.Split('|');
-            if (scoreData.Length == 2)
-            {
-                string nickname = scoreData[0];
-                if (int.TryParse(scoreData[1], out int score))
-                {
-                    Debug.Log($"{nickname}의 점수 업데이트: {score}");
+            // 점수 데이터 (예: "ㅇㄹ,10;f,0")
+            string[] playerData = packet.Value.Split(';'); // ';'로 각 플레이어의 데이터 분리
 
-                    QuizManager.Instance.scoreText.text = $"{nickname}: {score}";
+            foreach (string player in playerData)
+            {
+                string[] details = player.Split(','); // ','로 이름과 점수를 분리
+
+                if (details.Length == 2)
+                {
+                    string playerName = details[0];  // 플레이어 이름
+                    if (int.TryParse(details[1], out int score))  // 점수 값 파싱
+                    {
+                        //Debug.Log($"플레이어 이름: {playerName}, 점수: {score}");
+
+                        // 플레이어 이름과 점수를 찾아 업데이트
+                        int playerIndex = playerNames.IndexOf(playerName);
+                        if (playerIndex >= 0)
+                        {
+                            // 해당 플레이어의 점수 갱신
+                            playerScores[playerIndex] = score;
+
+                            // UI 업데이트
+                            QuizManager.Instance.UpdateScoreDisplay(playerNames, playerScores);
+                        }
+                    }
                 }
             }
         }
@@ -259,7 +295,6 @@ public class Client : MonoBehaviour
             Debug.Log(isCorrect);
             if (!isCorrect && QuizManager.Instance.isStartQuiz)
             {
-                Debug.Log("12d");
                 StartCoroutine(InputCooldown(3f)); // 정답이 아니면 쿨타임 3초 적용
             }
         }
@@ -291,6 +326,17 @@ public class Client : MonoBehaviour
         Chat.instance.SendInput.interactable = true; // 입력 가능
         Chat.instance.SendInput.interactable = true; // 버튼 활성화
         isCooldown = false;
+    }
+    // 씬 로드 후 점수 텍스트 업데이트를 위한 코루틴
+    private IEnumerator LoadSceneAndUpdateScore()
+    {
+        SceneController.Instance.LoadScene("QuizScene");
+
+        // 씬 로드 후 0.5초 대기
+        yield return new WaitForSeconds(0.5f);
+
+        // QuizManager의 UpdateScoreDisplay를 호출하여 점수 출력
+        QuizManager.Instance.UpdateScoreDisplay(playerNames, playerScores);
     }
 
 

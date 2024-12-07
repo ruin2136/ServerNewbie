@@ -160,11 +160,30 @@ public class QuizManager : MonoBehaviour
         return string.Equals(cleanedAnswer, cleanedUserAnswer, StringComparison.OrdinalIgnoreCase);
     }
 
-    // 문자열 정리. (제어 문자 제거 및 공백 트림)
+    // 점수를 출력하는 함수
+    public void UpdateScoreDisplay(List<string> playerNames, List<int> playerScores)
+    {
+        string scoreDisplay = "";
+
+        // 각 플레이어의 이름과 점수를 하나의 문자열로 연결
+        for (int i = 0; i < playerNames.Count; i++)
+        {
+            scoreDisplay += $"{playerNames[i]}: {playerScores[i]}점\n";
+        }
+
+        // scoreText UI에 출력
+        scoreText.text = scoreDisplay;
+    }
+
+    // 문자열 정리. (제어 문자 제거 및 공백 트림, 대소문자)
     private string CleanString(string input)
     {
         if (string.IsNullOrEmpty(input)) return string.Empty;
 
-        return new string(input.Where(c => !char.IsControl(c)).ToArray()).Trim();
+        return new string(input
+            .Where(c => !char.IsControl(c))     // 제어 문자 제거
+            .ToArray())                        // 배열로 변환
+            .Replace(" ", "")                   // 공백 제거
+            .ToLower();                         // 소문자 변환
     }
 }

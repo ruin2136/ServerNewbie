@@ -14,9 +14,6 @@ public class Server : MonoBehaviour
 {
     public InputField PortInput;
 
-    //todo 삭제해야됨
-    //private List<ServerClient> clients;
-
     private TcpListener server;
     private bool serverStarted;
 
@@ -325,7 +322,10 @@ public class Server : MonoBehaviour
         {
             Debug.Log("모든 클라이언트가 준비되었습니다. 게임을 시작합니다.");
             // TODO: 게임 시작 로직
-            DataPacket moveToQuizPacket = new("moveToQuiz", ExportNames(lob));
+            // 이름과 점수를 직렬화 (예: "Alice,10;Bob,20;Charlie,15")
+            string playerData = string.Join(";", lob.clients.Select(client => $"{client.clientName},{client.score}"));
+
+            DataPacket moveToQuizPacket = new("moveToQuiz", playerData);
             byte[] serializedData = moveToQuizPacket.Serialize();
 
             // 모든 클라이언트에게 패킷 전송
@@ -334,6 +334,7 @@ public class Server : MonoBehaviour
                 SendMessageToClient(client, serializedData);
             }
             OnBroadcastQuizButton();
+
         }
     }
 
@@ -421,13 +422,22 @@ public class Server : MonoBehaviour
     }
 
     // 모든 클라이언트에게 점수 브로드캐스트
-    public void BroadcastAllScores()
+    public void BroadcastAllScores(Lobby lob)
     {
-        //! 여기 수정
-        // foreach (var client in clients)
-        // {
-        //     BroadcastScore(client);
-        // }
+        // 클라이언트의 이름과 점수를 포함하는 데이터 생성
+        string scoreData = string.Join(";",
+            lob.clients.Select(client => $"{client.clientName},{client.score}"));
+
+        // 점수 데이터를 포함한 패킷 생성
+        DataPacket scoreUpdatePacket = new DataPacket("score", scoreData);
+        byte[] serializedData = scoreUpdatePacket.Serialize();
+
+        // 모든 클라이언트에게 점수 정보 전송
+        foreach (var client in lob.clients)
+        {
+            SendMessageToClient(client, serializedData);
+        }
+
 
     }
     private void BroadcastCountdown(int countdownTime)
@@ -441,6 +451,9 @@ public class Server : MonoBehaviour
     // 정답 맞춘 경우 처리 및 새 퀴즈 전송
     public void OnQuizAnsweredCorrectly(ServerClient c, string nickname, string answer)
     {
+        // 해당 클라이언트가 속한 로비 찾기
+        Lobby currentLobby = lobbies.FirstOrDefault(lobby => lobby.clients.Any(client => client.clientName == nickname));
+
         // 정답 메시지 전송
         string message = $"{nickname}님이 정답을 맞췄습니다! 정답: {answer}";
         Debug.Log(message);
@@ -454,7 +467,7 @@ public class Server : MonoBehaviour
             Debug.Log($"{nickname}의 점수: {c.score}");
         }
 
-        //BroadcastAllScores(); // 전체 클라이언트에게 점수 전송
+        BroadcastAllScores(currentLobby); // 전체 클라이언트에게 점수 전송
 
         //BroadcastNextQuiz();
         StartCoroutine(CountdownAndBroadcastQuiz());
