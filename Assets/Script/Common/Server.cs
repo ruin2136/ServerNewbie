@@ -412,15 +412,6 @@ public class Server : MonoBehaviour
         Debug.Log($"퀴즈 전송: ID={quizId}, Question={question}, 답 = {answer}");
     }
 
-    // 특정 클라이언트에게 점수 전송
-    private void BroadcastScore(ServerClient client)
-    {
-        string scoreData = $"{client.clientName}|{client.score}";
-        DataPacket scorePacket = new DataPacket("score", scoreData);
-        byte[] serializedScore = scorePacket.Serialize();
-        Broadcast(serializedScore);
-    }
-
     // 모든 클라이언트에게 점수 브로드캐스트
     public void BroadcastAllScores(Lobby lob)
     {
@@ -503,6 +494,27 @@ public class Server : MonoBehaviour
         BroadcastQuiz(nextQuiz.id, nextQuiz.question.Replace(";", ","), nextQuiz.answer);
         Debug.Log($"출제된 퀴즈: {nextQuiz.question}");
         QuizManager.Instance.isStartQuiz = true;
+
+        // 퀴즈 타이머 30초 시작
+        StartCoroutine(StartQuizTimer(30));
+    }
+    private IEnumerator StartQuizTimer(int timeLimit)
+    {
+        int countdownTime = timeLimit; // 타이머 시간
+
+        while (countdownTime > 0)
+        {
+            BroadcastCountdown(countdownTime);
+            Debug.Log($"타이머: {countdownTime}");
+            yield return new WaitForSeconds(1); // 1초 대기
+            countdownTime--;
+        }
+
+        // 타이머가 0이 되면 자동으로 다음 문제로 넘어감
+        Debug.Log("타이머 종료! 다음 문제로 넘어갑니다.");
+
+        // 타이머 종료 후 다음 문제로
+        StartCoroutine(CountdownAndBroadcastQuiz());
     }
 
     // 카운트다운 후 퀴즈를 브로드캐스트하는 코루틴
