@@ -119,7 +119,6 @@ public class Client : MonoBehaviour
         }
         else if(packet.Type == "moveToLobby")
         {
-            // ,을 기준으로 데이터를 나누기
             playerNames = packet.Value.Split(", ").ToList();
 
             //로비 씬으로 이동
@@ -127,7 +126,6 @@ public class Client : MonoBehaviour
         }
         else if (packet.Type == "listUpdate")
         {
-            // ,을 기준으로 데이터를 나누기
             List<string> nameList = packet.Value.Split(", ").ToList();
 
             // 로비/퀴즈 구분
@@ -144,11 +142,9 @@ public class Client : MonoBehaviour
 
             if (bool.TryParse(packet.Value, out readyBtnSet))
             {
-                if(lobManager==null)
-                {
-                    //씬 이동 시 처리할 것임
+                // 신규 접속자는 씬 이동 후 처리
+                if (lobManager == null)
                     return;
-                }
 
                 if (readyBtnSet)
                 {
