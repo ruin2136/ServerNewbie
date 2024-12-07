@@ -13,6 +13,8 @@ using UnityEngine.UI;
 public class Server : MonoBehaviour
 {
     public InputField PortInput;
+    
+    //todo 삭제해야됨
     private List<ServerClient> clients;
 
     private TcpListener server;
@@ -176,11 +178,11 @@ public class Server : MonoBehaviour
             byte[] serializedData = movetoLobbyPacket.Serialize();
             SendMessageToClient(c, serializedData);
 
-            //그럼 클라에서 씬이동 하고 씬이동 끝나야 data 쓰도록 작성
-            //로비로 이동한 후에 로비업데이트가 이루어져야 함!!!
-
             //해당 로비의 다른 플레이어들 UI 갱신 신호 전송
             UpdateList(lob, c);
+            //준비버튼 활성화 비활성화 체크
+            CheckReadyBtn(lob, true);
+
         }
         else if (packet.Type == "ready")
         {
@@ -314,14 +316,11 @@ public class Server : MonoBehaviour
 
         Debug.Log($"{lob.lobbyId} 로비에 클라이언트가 연결되었습니다.");
         lob.AddPlayer(client);
-
-        //준비버튼 활성화 비활성화 체크
-        CheckReadyBtn(lob, true);
     }
 
     private void CheckStart(Lobby lob)
     {
-        if (lob.clients.All(client => client.isReady)&&clients.Count>1)
+        if (lob.clients.All(client => client.isReady)&& lob.clients.Count>1)
         {
             Debug.Log("모든 클라이언트가 준비되었습니다. 게임을 시작합니다.");
             // TODO: 게임 시작 로직
@@ -342,9 +341,6 @@ public class Server : MonoBehaviour
 
             Debug.Log($"{lob.lobbyId} 로비의 {c.clientName} 클라이언트에게 데이터를 전송합니다.");
             SendMessageToClient(c, serializedMessage);
-
-            //todo 신규 플레이어 접속/종료 구분 없음
-            //접속/종료 구분해서 메세지 출력하도록 전송
         }
     }
 

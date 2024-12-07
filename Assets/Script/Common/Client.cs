@@ -22,6 +22,8 @@ public class Client : MonoBehaviour
     [Header("로비 UI 매니저")]
     public LobbyUIManager lobManager;
     public List<string> playerNames = new List<string>();
+    [HideInInspector]
+    public bool readyBtnSet;
 
     public static Client Instance { get; private set; }
     private void Awake()
@@ -138,18 +140,26 @@ public class Client : MonoBehaviour
         }
         else if(packet.Type== "readyBtn")
         {
-            //todo 로비 준비 버튼 활성화 비활성화
-            bool active;
-            
-            if (bool.TryParse(packet.Value, out active))
+            //로비 준비 버튼 활성화 비활성화
+
+            if (bool.TryParse(packet.Value, out readyBtnSet))
             {
-                if (active)
+                if(lobManager==null)
+                {
+                    //씬 이동 시 처리할 것임
+                    return;
+                }
+
+                if (readyBtnSet)
                 {
                     // 준비 버튼 활성화
+                    lobManager.SetBtn(readyBtnSet);
                 }
                 else
                 {
                     // 준비 버튼 비활성화
+                    lobManager.SetBtn(readyBtnSet);
+                    isReady = false;
                 }
             }
             else
@@ -297,8 +307,6 @@ public class Client : MonoBehaviour
 
     public void SetReady()
     {
-        //TODO 준비 버튼 UI 변경
-
         isReady = !isReady;
 
         string message = isReady.ToString();
