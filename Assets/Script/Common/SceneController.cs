@@ -40,6 +40,11 @@ public class SceneController : MonoBehaviour
             // 퀴즈 씬 초기화
             InitializeQuizScene();
         }
+        else if(scene.name == "ResultScene")
+        {
+            // 결과 씬 초기화
+            InitializeResultScene();
+        }
     }
 
     private void InitializeLobbyScene()
@@ -105,6 +110,20 @@ public class SceneController : MonoBehaviour
             {
                 Debug.LogError("Chat 오브젝트에 Chat 컴포넌트가 없습니다.");
             }
+        }
+        else
+        {
+            Debug.LogError("Chat 오브젝트를 찾을 수 없습니다.");
+        }
+    }
+
+    private void InitializeResultScene()
+    {
+        GameObject rankObject = GameObject.Find("Rank");
+        if (rankObject != null)
+        {
+            Rank rankComponent = rankObject.GetComponent<Rank>();
+            rankComponent.DisplayRankings(Client.Instance.playerScores, Client.Instance.playerNames);
         }
         else
         {

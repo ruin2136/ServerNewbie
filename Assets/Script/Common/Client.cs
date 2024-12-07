@@ -24,6 +24,7 @@ public class Client : MonoBehaviour
     public List<string> playerNames = new List<string>();
     [HideInInspector]
     public bool readyBtnSet;
+    public List<int> playerScores = new List<int>();
 
     public static Client Instance { get; private set; }
     private void Awake()
