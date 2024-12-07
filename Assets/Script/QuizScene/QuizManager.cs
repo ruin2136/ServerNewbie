@@ -65,7 +65,7 @@ public class QuizManager : MonoBehaviour
         }
     }
 
-    
+
     // CSV 파일에서 퀴즈 데이터 파싱
     private List<Quiz> ParseQuizzesFromCSV(string fileName)
     {
@@ -109,7 +109,7 @@ public class QuizManager : MonoBehaviour
         return quizList;
     }
 
-    
+
     // 랜덤으로 퀴즈를 선택하고 반환
     public Quiz GetRandomQuiz()
     {
@@ -139,6 +139,11 @@ public class QuizManager : MonoBehaviour
         return randomQuiz;
     }
 
+    public void SetCurrentQuiz(Quiz quiz)
+    {
+        currentQuiz = quiz;
+        QuizText.text = quiz.question; // UI 업데이트
+    }
 
     // 현재 퀴즈의 정답 여부 확인
     public bool CheckAnswer(string userAnswer)
@@ -155,7 +160,6 @@ public class QuizManager : MonoBehaviour
         return string.Equals(cleanedAnswer, cleanedUserAnswer, StringComparison.OrdinalIgnoreCase);
     }
 
-    
     // 문자열 정리. (제어 문자 제거 및 공백 트림)
     private string CleanString(string input)
     {

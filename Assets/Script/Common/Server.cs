@@ -13,9 +13,9 @@ using UnityEngine.UI;
 public class Server : MonoBehaviour
 {
     public InputField PortInput;
-    
+
     //todo 삭제해야됨
-    private List<ServerClient> clients;
+    //private List<ServerClient> clients;
 
     private TcpListener server;
     private bool serverStarted;
@@ -47,7 +47,7 @@ public class Server : MonoBehaviour
 
     public void ServerCreate()
     {
-        clients = new List<ServerClient>();
+        //clients = new List<ServerClient>();
 
         try
         {
@@ -156,11 +156,12 @@ public class Server : MonoBehaviour
                 bool isCorrect = QuizManager.Instance.CheckAnswer(clientMessage);
                 if (isCorrect)
                 {
-                    OnQuizAnsweredCorrectly(c.clientName, currentQuiz.answer);
+                    OnQuizAnsweredCorrectly(c, c.clientName, currentQuiz.answer);
                 }
                 else
                 {
                     BroadcastMessage($"{c.clientName}: {clientMessage}");
+
                 }
             }
             else
@@ -174,7 +175,7 @@ public class Server : MonoBehaviour
             Debug.Log($"{lob.lobbyId} 로비의 신규 클라 이름 설정 : {c.clientName}");
 
             // 로비 씬으로 이동 신호 전송
-            DataPacket movetoLobbyPacket = new ("moveToLobby", ExportNames(lob));
+            DataPacket movetoLobbyPacket = new("moveToLobby", ExportNames(lob));
             byte[] serializedData = movetoLobbyPacket.Serialize();
             SendMessageToClient(c, serializedData);
 
@@ -320,10 +321,19 @@ public class Server : MonoBehaviour
 
     private void CheckStart(Lobby lob)
     {
-        if (lob.clients.All(client => client.isReady)&& lob.clients.Count>1)
+        if (lob.clients.All(client => client.isReady) && lob.clients.Count > 1)
         {
             Debug.Log("모든 클라이언트가 준비되었습니다. 게임을 시작합니다.");
             // TODO: 게임 시작 로직
+            DataPacket moveToQuizPacket = new("moveToQuiz", ExportNames(lob));
+            byte[] serializedData = moveToQuizPacket.Serialize();
+
+            // 모든 클라이언트에게 패킷 전송
+            foreach (var client in lob.clients)
+            {
+                SendMessageToClient(client, serializedData);
+            }
+            OnBroadcastQuizButton();
         }
     }
 
@@ -379,6 +389,7 @@ public class Server : MonoBehaviour
         return string.Join(", ", lob.clients.Select(c => c.clientName.ToString()));
     }
 
+
     #endregion
 
 
@@ -390,12 +401,14 @@ public class Server : MonoBehaviour
 
     #region 퀴즈 시스템
     // 서버에서 퀴즈 전송
-    public void BroadcastQuiz(int quizId, string question)
+    public void BroadcastQuiz(int quizId, string question, string answer)
     {
-        string quizData = $"{quizId}|{question}";
+        string quizData = $"{quizId}|{question}|{answer}";
         DataPacket quizPacket = new DataPacket("quiz", quizData);
         byte[] serializedQuiz = quizPacket.Serialize();
         Broadcast(serializedQuiz);
+
+        Debug.Log($"퀴즈 전송: ID={quizId}, Question={question}, 답 = {answer}");
     }
 
     // 특정 클라이언트에게 점수 전송
@@ -410,10 +423,12 @@ public class Server : MonoBehaviour
     // 모든 클라이언트에게 점수 브로드캐스트
     public void BroadcastAllScores()
     {
-        foreach (var client in clients)
-        {
-            BroadcastScore(client);
-        }
+        //! 여기 수정
+        // foreach (var client in clients)
+        // {
+        //     BroadcastScore(client);
+        // }
+
     }
     private void BroadcastCountdown(int countdownTime)
     {
@@ -424,38 +439,33 @@ public class Server : MonoBehaviour
     }
 
     // 정답 맞춘 경우 처리 및 새 퀴즈 전송
-    public void OnQuizAnsweredCorrectly(string nickname, string answer)
+    public void OnQuizAnsweredCorrectly(ServerClient c, string nickname, string answer)
     {
         // 정답 메시지 전송
         string message = $"{nickname}님이 정답을 맞췄습니다! 정답: {answer}";
         Debug.Log(message);
         BroadcastMessage(message);
 
-         // 정답자를 찾아 점수 증가 
-        foreach (var client in clients)
+        // 정답자를 찾아 점수 증가 
+
+        if (c.clientName == nickname)
         {
-            if (client.clientName == nickname)
-            {
-                client.score += 10; // 점수 10점 추가
-                Debug.Log($"{nickname}의 점수: {client.score}");
-                //BroadcastAllScores();
-                //BroadcastScore(client); // 점수 업데이트 전송
-                break;
-            }
+            c.score += 10; // 점수 10점 추가
+            Debug.Log($"{nickname}의 점수: {c.score}");
         }
 
-        BroadcastAllScores(); // 전체 클라이언트에게 점수 전송
+        //BroadcastAllScores(); // 전체 클라이언트에게 점수 전송
 
         //BroadcastNextQuiz();
         StartCoroutine(CountdownAndBroadcastQuiz());
     }
 
 
-    
+
     // 시작버튼 누르면 문제 출력되는 함수
     public void OnBroadcastQuizButton()
     {
-        SceneController.Instance.LoadScene("QuizScene");
+        //SceneController.Instance.LoadScene("QuizScene");
         if (!serverStarted)
         {
             Debug.Log("서버가 시작되지 않았습니다!");
@@ -466,7 +476,7 @@ public class Server : MonoBehaviour
         StartCoroutine(CountdownAndBroadcastQuiz());
     }
 
-    private void BroadcastNextQuiz() 
+    private void BroadcastNextQuiz()
     {
         Quiz nextQuiz = QuizManager.Instance.GetRandomQuiz();
         if (nextQuiz == null)
@@ -477,7 +487,7 @@ public class Server : MonoBehaviour
 
         currentQuiz = nextQuiz;
         quizCount++;
-        BroadcastQuiz(nextQuiz.id, nextQuiz.question.Replace(";", ","));
+        BroadcastQuiz(nextQuiz.id, nextQuiz.question.Replace(";", ","), nextQuiz.answer);
         Debug.Log($"출제된 퀴즈: {nextQuiz.question}");
         QuizManager.Instance.isStartQuiz = true;
     }
@@ -488,7 +498,7 @@ public class Server : MonoBehaviour
         yield return new WaitForSeconds(0.5f); // 로딩시간
         QuizManager.Instance.isStartQuiz = false;
 
-        if(quizCount>=10)
+        if (quizCount >= 10)
         {
             QuizManager.Instance.QuizText.text = "퀴즈가 종료되었습니다!";
 

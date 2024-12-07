@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LobbyScene.unity
     guid: a6667a4a0511ca04f95c268a28f47d25
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/QuizScene.unity
     guid: 764ff47aa95b0e34095a90e1cb1361a9
   - enabled: 0

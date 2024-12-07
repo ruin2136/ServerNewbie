@@ -100,7 +100,7 @@ public class Client : MonoBehaviour
             OnIncomingData(completePacket); // 패킷 처리
         }
     }
-    
+
     void OnIncomingData(string data)
     {
         Debug.Log("서버에서 받은 데이터: " + data);
@@ -118,26 +118,34 @@ public class Client : MonoBehaviour
             clientName = packet.Value;
             Chat.instance.ShowMessage($"닉네임: {clientName}으로 접속되었습니다.");
         }
-        else if(packet.Type == "moveToLobby")
+        else if (packet.Type == "moveToLobby")
         {
             playerNames = packet.Value.Split(", ").ToList();
 
+
             //로비 씬으로 이동
             SceneController.Instance.LoadScene("LobbyScene");
+        }
+        else if (packet.Type == "moveToQuiz")
+        {
+            playerNames = packet.Value.Split(", ").ToList();
+
+            SceneController.Instance.LoadScene("QuizScene");
+
         }
         else if (packet.Type == "listUpdate")
         {
             List<string> nameList = packet.Value.Split(", ").ToList();
 
             // 로비/퀴즈 구분
-            if(lobManager != null)
+            if (lobManager != null)
             {
                 //로비 업데이트
                 lobManager.LobbyUIUpdate(nameList);
             }
             //아니면 퀴즈 업데이트
         }
-        else if(packet.Type== "readyBtn")
+        else if (packet.Type == "readyBtn")
         {
             //로비 준비 버튼 활성화 비활성화
 
@@ -167,12 +175,18 @@ public class Client : MonoBehaviour
         else if (packet.Type == "quiz")
         {
             string[] quizData = packet.Value.Split('|');
-            if (quizData.Length == 2 && int.TryParse(quizData[0], out int quizId))
+            if (quizData.Length == 3 && int.TryParse(quizData[0], out int quizId))
             {
                 string question = quizData[1];
+                string answer = quizData[2];
+
+                Quiz newQuiz = new Quiz { id = quizId, question = question, answer = answer };
+                QuizManager.Instance.SetCurrentQuiz(newQuiz);
+                QuizManager.Instance.isStartQuiz = true;
+
                 if (!string.IsNullOrEmpty(question))
                 {
-                    QuizManager.Instance.QuizText.text = question;
+                    //QuizManager.Instance.QuizText.text = question;
                     Debug.Log($"퀴즈 ID={quizId}, Question={question}");
                 }
                 else
@@ -185,7 +199,7 @@ public class Client : MonoBehaviour
                 Debug.LogError("퀴즈 데이터 형식이 잘못되었습니다: " + packet.Value);
             }
         }
-        else if (packet.Type == "score") 
+        else if (packet.Type == "score")
         {
             string[] scoreData = packet.Value.Split('|');
             if (scoreData.Length == 2)
@@ -195,13 +209,13 @@ public class Client : MonoBehaviour
                 {
                     Debug.Log($"{nickname}의 점수 업데이트: {score}");
 
-                    QuizManager.Instance.scoreText.text=$"{nickname}: {score}";
+                    QuizManager.Instance.scoreText.text = $"{nickname}: {score}";
                 }
             }
         }
-        else if(packet.Type=="countdown")
+        else if (packet.Type == "countdown")
         {
-             if (int.TryParse(packet.Value, out int countdownTime))
+            if (int.TryParse(packet.Value, out int countdownTime))
             {
                 QuizManager.Instance.CountdownText.text = countdownTime.ToString(); // 클라이언트에서 카운트다운 표시
                 //Debug.Log($"서버에서 받은 카운트다운: {countdownTime}");
@@ -228,7 +242,7 @@ public class Client : MonoBehaviour
 
     public void OnSendButton(InputField SendInput)
     {
-        if (!socketReady || isCooldown) return; // 쿨타임 중이면 무시
+        if (!socketReady) return; // 쿨타임 중이면 무시
         if (SendInput == null || string.IsNullOrWhiteSpace(SendInput.text)) return;
 
         string message = SendInput.text.Trim();
@@ -239,19 +253,21 @@ public class Client : MonoBehaviour
         Send(serializedMessage);
 
         // 정답 체크
-        if(QuizManager.Instance)
+        if (QuizManager.Instance)
         {
             bool isCorrect = QuizManager.Instance.CheckAnswer(message);
+            Debug.Log(isCorrect);
             if (!isCorrect && QuizManager.Instance.isStartQuiz)
             {
+                Debug.Log("12d");
                 StartCoroutine(InputCooldown(3f)); // 정답이 아니면 쿨타임 3초 적용
             }
         }
-        else 
+        else
         {
             Debug.Log("퀴즈매니저 널");
         }
-       
+
     }
     private IEnumerator InputCooldown(float cooldownTime)
     {
@@ -300,7 +316,7 @@ public class Client : MonoBehaviour
     }
 
     #region 추가된 코드(by 전영준)
-    public bool isReady=false;
+    public bool isReady = false;
 
     public void SetReady()
     {
