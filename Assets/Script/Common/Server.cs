@@ -249,7 +249,7 @@ public class Server : MonoBehaviour
     {
         foreach (var lob in lobbies)
         {
-            if (!lob.isFull&&!lob.isStart)
+            if (!lob.isFull && !lob.isStart)
             {
                 ConnectLobby(lob, client);
                 return;
@@ -462,6 +462,13 @@ public class Server : MonoBehaviour
 
         BroadcastAllScores(currentLobby); // 전체 클라이언트에게 점수 전송
 
+        // 실행 중인 타이머 중단
+        if (quizTimerCoroutine != null)
+        {
+            StopCoroutine(quizTimerCoroutine);
+            quizTimerCoroutine = null; // 중단 후 핸들 초기화
+        }
+
         //BroadcastNextQuiz();
         StartCoroutine(CountdownAndBroadcastQuiz());
     }
@@ -498,8 +505,10 @@ public class Server : MonoBehaviour
         QuizManager.Instance.isStartQuiz = true;
 
         // 퀴즈 타이머 30초 시작
-        StartCoroutine(StartQuizTimer(30));
+        quizTimerCoroutine = StartCoroutine(StartQuizTimer(30));
     }
+
+    private Coroutine quizTimerCoroutine; // 타이머 코루틴 핸들 저장 변수
     private IEnumerator StartQuizTimer(int timeLimit)
     {
         int countdownTime = timeLimit; // 타이머 시간
