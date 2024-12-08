@@ -44,8 +44,6 @@ public class Server : MonoBehaviour
 
     public void ServerCreate()
     {
-        //clients = new List<ServerClient>();
-
         try
         {
             int port = string.IsNullOrEmpty(PortInput.text) ? 7777 : int.Parse(PortInput.text);
@@ -55,7 +53,6 @@ public class Server : MonoBehaviour
             StartListening();
             serverStarted = true;
 
-            //Chat.instance.ShowMessage($"서버가 {port}에서 시작되었습니다.");
             Debug.Log($"서버가 {port}에서 시작되었습니다.");
         }
         catch (Exception e)
@@ -252,7 +249,7 @@ public class Server : MonoBehaviour
     {
         foreach (var lob in lobbies)
         {
-            if (!lob.isFull)
+            if (!lob.isFull&&!lob.isStart)
             {
                 ConnectLobby(lob, client);
                 return;
@@ -323,6 +320,8 @@ public class Server : MonoBehaviour
             Debug.Log("모든 클라이언트가 준비되었습니다. 게임을 시작합니다.");
             // TODO: 게임 시작 로직
             // 이름과 점수를 직렬화 (예: "Alice,10;Bob,20;Charlie,15")
+            lob.isStart = true;
+
             string playerData = string.Join(";", lob.clients.Select(client => $"{client.clientName},{client.score}"));
 
             DataPacket moveToQuizPacket = new("moveToQuiz", playerData);
@@ -360,13 +359,15 @@ public class Server : MonoBehaviour
         int count = lob.clients.Count;
 
         //사람이 늘었다면
-        if (isPlus && count == 2)
+        if (isPlus && count >= 2)
         {
+            Debug.Log("사람이 늘었음");
             UpdateReadyBtn(lob, true);
         }
         //사람이 줄었다면
         else if (!isPlus && count == 1)
         {
+            Debug.Log("사람이 줄었음");
             lob.clients[0].isReady = false;
             UpdateReadyBtn(lob, false);
         }
@@ -374,6 +375,7 @@ public class Server : MonoBehaviour
 
     private void UpdateReadyBtn(Lobby lob, bool active)
     {
+        Debug.Log($"서버 : 버튼 상태 업데이트 to {active}");
         DataPacket messagePacket = new("readyBtn", active.ToString());
         byte[] serializedMessage = messagePacket.Serialize();
 

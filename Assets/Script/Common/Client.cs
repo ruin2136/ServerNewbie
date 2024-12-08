@@ -171,6 +171,8 @@ public class Client : MonoBehaviour
 
             if (bool.TryParse(packet.Value, out readyBtnSet))
             {
+                Debug.Log($"신규 접속 플레이어 : 준비 상태 변경 to {readyBtnSet}");
+
                 // 신규 접속자는 씬 이동 후 처리
                 if (lobManager == null)
                     return;

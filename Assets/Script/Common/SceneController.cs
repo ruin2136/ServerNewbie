@@ -61,6 +61,8 @@ public class SceneController : MonoBehaviour
 
                 //로비 UI 갱신 호출
                 lobUI.LobbyUIUpdate(Client.Instance.playerNames);
+
+                Debug.Log($"신규 접속 플레이어 : 버튼 상태 업데이트 to {Client.Instance.readyBtnSet}");
                 //로비 준비버튼 갱신 호출
                 lobUI.SetBtn(Client.Instance.readyBtnSet);
             }
