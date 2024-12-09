@@ -43,36 +43,4 @@ public class Lobby
             isFull = false;
         Debug.Log($"플레이어 {client}가 {lobbyId} 로비에서 제거되었습니다.");
     }
-
-    //모든 플레이어 준비상태 확인
-    public bool CheckReadyStatus()
-    {
-        if (clients.Count <= 1)
-        {
-            //최소 인원 미충족
-            return false;
-        }
-
-        bool allReady = true;
-
-        foreach(ServerClient player in clients)
-        {
-            //if(!player.isReady)
-            //    allReady = player.isReady;
-        }
-
-        return allReady;
-    }
-
-    //게임 시작 및 씬 전환 신호 전송
-    public void StartGame()
-    {
-
-    }
-
-    //결과 출력
-    public void ShowResult()
-    {
-
-    }
 }

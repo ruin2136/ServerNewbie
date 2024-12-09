@@ -17,8 +17,6 @@ public class Client : MonoBehaviour
     TcpClient socket;
     NetworkStream stream;
 
-    private bool isCooldown = false; // 입력 쿨타임 상태 확인 변수
-
     [Header("로비 UI 매니저")]
     public LobbyUIManager lobManager;
     public List<string> playerNames = new List<string>();
@@ -308,8 +306,6 @@ public class Client : MonoBehaviour
     }
     private IEnumerator InputCooldown(float cooldownTime)
     {
-        isCooldown = true;
-
         // 입력 비활성화
         Chat.instance.SendInput.interactable = false;
         Chat.instance.SendInput.interactable = false;
@@ -327,8 +323,8 @@ public class Client : MonoBehaviour
         Chat.instance.SendInput.text = ""; // 쿨타임이 끝나면 텍스트 비우기
         Chat.instance.SendInput.interactable = true; // 입력 가능
         Chat.instance.SendInput.interactable = true; // 버튼 활성화
-        isCooldown = false;
     }
+
     // 씬 로드 후 점수 텍스트 업데이트를 위한 코루틴
     private IEnumerator LoadSceneAndUpdateScore()
     {
